@@ -55,7 +55,7 @@ class ActorPhotosCollectionViewCell: UICollectionViewCell {
             blurImage(actorsPhotosNumber: totalNumberOfPhotos)
         }
         
-        let actorPhotoPathURL = "https://image.tmdb.org/t/p/w200\(imagePath ?? "wwemzKWzjKYJFfCeiB57q3r4Bcm.png")"
+        let actorPhotoPathURL = "https://image.tmdb.org/t/p/w200\(imagePath ?? "/wwemzKWzjKYJFfCeiB57q3r4Bcm.png")"
         let url = URL(string: actorPhotoPathURL)!
         actorPhoto.kf.setImage(with: url)
 //        DispatchQueue.global(qos: .userInitiated).async {

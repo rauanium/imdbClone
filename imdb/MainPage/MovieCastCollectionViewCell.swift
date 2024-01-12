@@ -78,7 +78,7 @@ class MovieCastCollectionViewCell: UICollectionViewCell {
         
         personRealName.text = actorName
         personInRole.text = character
-        let urlString = "https://image.tmdb.org/t/p/w200\(imagePath ?? "wwemzKWzjKYJFfCeiB57q3r4Bcm.png")"
+        let urlString = "https://image.tmdb.org/t/p/w200\(imagePath ?? "/wwemzKWzjKYJFfCeiB57q3r4Bcm.png")"
         let url = URL(string: urlString)!
         personImageView.kf.setImage(with: url)
 //        DispatchQueue.global(qos: .userInitiated).async {

@@ -389,7 +389,7 @@ extension ActorDetailsViewController: UICollectionViewDelegate, UICollectionView
         if collectionView == actorsMoviesCollectionView {
             let cell = actorsMoviesCollectionView.dequeueReusableCell(withReuseIdentifier: "actorsMoviesCell", for: indexPath) as! ActrosMoviesCollectionViewCell
             let actorsMovieEntity = actorsMoviesList[indexPath.row]
-            cell.configure(posterPath: actorsMovieEntity.posterPath ?? "wwemzKWzjKYJFfCeiB57q3r4Bcm.png", originalTitle: actorsMovieEntity.originalTitle, releaseYear: actorsMovieEntity.releaseDate!)
+            cell.configure(posterPath: actorsMovieEntity.posterPath ?? "/wwemzKWzjKYJFfCeiB57q3r4Bcm.png", originalTitle: actorsMovieEntity.originalTitle, releaseYear: actorsMovieEntity.releaseDate!)
             return cell
         } else {
             let cell = actorPhotosCollectionView.dequeueReusableCell(withReuseIdentifier: "actorsPhotoCell", for: indexPath) as! ActorPhotosCollectionViewCell
