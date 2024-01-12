@@ -4,7 +4,7 @@
 //
 //  Created by rauan on 1/1/24.
 //
-
+import Kingfisher
 import UIKit
 
 class ActrosMoviesCollectionViewCell: UICollectionViewCell {
@@ -71,13 +71,14 @@ class ActrosMoviesCollectionViewCell: UICollectionViewCell {
     func configure(posterPath: String, originalTitle: String, releaseYear: String){
         let urlString = "https://image.tmdb.org/t/p/w200\(posterPath)"
         let url = URL(string: urlString)!
-        DispatchQueue.global(qos: .userInitiated).async {
-            if let data = try? Data(contentsOf: url) {
-                DispatchQueue.main.async {
-                    self.moviesPoster.image = UIImage(data: data)
-                }
-            }
-        }
+        moviesPoster.kf.setImage(with: url)
+//        DispatchQueue.global(qos: .userInitiated).async {
+//            if let data = try? Data(contentsOf: url) {
+//                DispatchQueue.main.async {
+//                    self.moviesPoster.image = UIImage(data: data)
+//                }
+//            }
+//        }
         movieTitle.text = originalTitle
         movieReleaseYear.text = releaseYear
         

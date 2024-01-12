@@ -4,7 +4,7 @@
 //
 //  Created by rauan on 1/10/24.
 //
-
+import Kingfisher
 import UIKit
 
 class PhotoGalleryCollectionViewCell: UICollectionViewCell {
@@ -37,13 +37,14 @@ class PhotoGalleryCollectionViewCell: UICollectionViewCell {
     func configure(actorsImagePath: String){
         let singlePhotoPath = "https://image.tmdb.org/t/p/w200\(actorsImagePath)"
         let url = URL(string: singlePhotoPath)!
-        DispatchQueue.global(qos: .userInitiated).async {
-            if let data = try? Data(contentsOf: url){
-                DispatchQueue.main.async {
-                    self.singlePhotoOfGalleryImageView.image = UIImage(data: data)
-                }
-            }
-        }
+        singlePhotoOfGalleryImageView.kf.setImage(with: url)
+//        DispatchQueue.global(qos: .userInitiated).async {
+//            if let data = try? Data(contentsOf: url){
+//                DispatchQueue.main.async {
+//                    self.singlePhotoOfGalleryImageView.image = UIImage(data: data)
+//                }
+//            }
+//        }
         
     }
     

@@ -4,7 +4,7 @@
 //
 //  Created by rauan on 1/1/24.
 //
-
+import Kingfisher
 import UIKit
 
 class ActorPhotosCollectionViewCell: UICollectionViewCell {
@@ -57,13 +57,14 @@ class ActorPhotosCollectionViewCell: UICollectionViewCell {
         
         let actorPhotoPathURL = "https://image.tmdb.org/t/p/w200\(imagePath ?? "wwemzKWzjKYJFfCeiB57q3r4Bcm.png")"
         let url = URL(string: actorPhotoPathURL)!
-        DispatchQueue.global(qos: .userInitiated).async {
-            if let data = try? Data(contentsOf: url){
-                DispatchQueue.main.async {
-                    self.actorPhoto.image = UIImage(data: data)
-                }
-            }
-        }
+        actorPhoto.kf.setImage(with: url)
+//        DispatchQueue.global(qos: .userInitiated).async {
+//            if let data = try? Data(contentsOf: url){
+//                DispatchQueue.main.async {
+//                    self.actorPhoto.image = UIImage(data: data)
+//                }
+//            }
+//        }
     }
     
     func blurImage(actorsPhotosNumber: Int){
