@@ -7,7 +7,7 @@
 import SnapKit
 import UIKit
 
-class MovieDetailsViewController: UIViewController {
+class MovieDetailsViewController: BaseViewController {
     var movieId = Int()
     private lazy var starFromDB = "zeroStars"
     private var networkManager = NetworkManager.shared
@@ -413,6 +413,7 @@ func youtubeTapped(_ sender: UITapGestureRecognizer){
 //MARK: - loading data of movie
 extension MovieDetailsViewController {
     private func loadData() {
+        showLoader()
         networkManager.loadMovieDetails(id: movieId) { [weak self] movieDetails in
             guard let posterPath = movieDetails.posterPath else { return }
                         
@@ -435,6 +436,10 @@ extension MovieDetailsViewController {
             
             //MARK: - getting movie genres
             self?.movieGenres = movieDetails.genres
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5){
+                self?.hideLoader()
+            }
+            
         }
     }
     

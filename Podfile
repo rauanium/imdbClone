@@ -8,6 +8,7 @@ target 'imdb' do
   use_frameworks!
 
     pod 'SnapKit'
-    pod 'Kingfisher' 
+    pod 'Kingfisher'
+    pod 'lottie-ios'
 
 end
