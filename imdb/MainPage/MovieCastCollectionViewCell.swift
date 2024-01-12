@@ -6,7 +6,7 @@
 //
 
 import UIKit
-
+import Kingfisher
 class MovieCastCollectionViewCell: UICollectionViewCell {
     
     var personImageView: UIImageView = {
@@ -80,12 +80,13 @@ class MovieCastCollectionViewCell: UICollectionViewCell {
         personInRole.text = character
         let urlString = "https://image.tmdb.org/t/p/w200\(imagePath ?? "wwemzKWzjKYJFfCeiB57q3r4Bcm.png")"
         let url = URL(string: urlString)!
-        DispatchQueue.global(qos: .userInitiated).async {
-            if let data = try? Data(contentsOf: url) {
-                DispatchQueue.main.async {
-                    self.personImageView.image = UIImage(data: data)
-                }
-            }
-        }        
+        personImageView.kf.setImage(with: url)
+//        DispatchQueue.global(qos: .userInitiated).async {
+//            if let data = try? Data(contentsOf: url) {
+//                DispatchQueue.main.async {
+//                    self.personImageView.image = UIImage(data: data)
+//                }
+//            }
+//        }        
     }
 }
