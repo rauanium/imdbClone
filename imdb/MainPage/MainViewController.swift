@@ -7,9 +7,8 @@
 import SnapKit
 import UIKit
 
-
-
 class MainViewController: UIViewController {
+    static var idx: Int = 1
     private var lastSelectedIndexPath: IndexPath?
     private var lastSelectedIndexPathForGenres: IndexPath?
     
@@ -22,16 +21,12 @@ class MainViewController: UIViewController {
     private var allResults: [Result] = []
     private lazy var result: [Result] = []{
         didSet {
-            
             self.movieTableView.reloadData()
-            
         }
     }
     private lazy var movieGenres: [Genre] = [.init(id: 1, name: "All")]{
         didSet {
-            
             self.genresCollectionView.reloadData()
-            genresCollectionView.selectItem(at: [0, 0], animated: true, scrollPosition: [])
         }
     }
     
@@ -57,8 +52,8 @@ class MainViewController: UIViewController {
         layout.sectionInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         layout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
         return layout
-        }()
-        
+    }()
+    
     private lazy var movieStatusCollectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: self.layout)
         collectionView.dataSource = self
@@ -119,33 +114,36 @@ class MainViewController: UIViewController {
     }()
     override func viewDidLoad() {
         super.viewDidLoad()
+        loadGenres()
         loadData()
         setupViews()
-
+        genresCollectionView.allowsMultipleSelection = false
+        movieStatusCollectionView.allowsMultipleSelection = false
+        //        genresCollectionView.selectItem(at: [0, 0], animated: true, scrollPosition: [])
+        //        movieStatusCollectionView.selectItem(at: [0, 0], animated: true, scrollPosition: [])
     }
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        genresCollectionView.allowsMultipleSelection = false
-        movieStatusCollectionView.allowsMultipleSelection = false
-        genresCollectionView.selectItem(at: [0,0], animated: true, scrollPosition: [])
-        movieStatusCollectionView.selectItem(at: [0,0], animated: true, scrollPosition: [])
         animate()
     }
     override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(true)
+        super.viewWillAppear(animated)
         genresCollectionView.selectItem(at: lastSelectedIndexPathForGenres, animated: true, scrollPosition: [])
         movieStatusCollectionView.selectItem(at: lastSelectedIndexPath, animated: true, scrollPosition: [])
     }
-    
-    private func loadData(){
+    private func loadGenres(){
         networkManager.loadGenres { [weak self] genres in
             genres.forEach { genre in
                 self?.movieGenres.append(genre)
             }
         }
+    }
+    
+    private func loadData(){
         networkManager.loadMovies(with: currentStatus) { [weak self] movies in
-            self?.result = movies
+//            self?.result = movies
             self?.allResults = movies
+            self?.obtainMovieList(with: MainViewController.idx)
         }
     }
     
@@ -219,7 +217,7 @@ class MainViewController: UIViewController {
     }
 }
 
-    
+
 //MARK: - Contraints
 extension MainViewController {
     private func setupViews(){
@@ -321,12 +319,9 @@ extension MainViewController: UICollectionViewDataSource, UICollectionViewDelega
             if indexPath.row == 0 {
                 lastSelectedIndexPath = indexPath
                 cell.isSelected = true
-                
-                }
-                
-                //update last select state from lastSelectedIndexPath
+            }
+            //update last select state from lastSelectedIndexPath
             cell.isSelected = (lastSelectedIndexPath == indexPath)
-            
             return cell
         }
         
@@ -337,14 +332,9 @@ extension MainViewController: UICollectionViewDataSource, UICollectionViewDelega
             if indexPath.row == 0 {
                 lastSelectedIndexPathForGenres = indexPath
                 cell.isSelected = true
-                
-                }
-                
-                //update last select state from lastSelectedIndexPath
+            }
+            //update last select state from lastSelectedIndexPath
             cell.isSelected = (lastSelectedIndexPathForGenres == indexPath)
-            
-            
-            
             return cell
         }
     }
@@ -362,31 +352,27 @@ extension MainViewController: UICollectionViewDataSource, UICollectionViewDelega
                 cell.isSelected = false
                 
             }
-
             let cell = collectionView.cellForItem(at: indexPath) as! MovieStatusCollectionViewCell
             cell.isSelected = true
-            
             lastSelectedIndexPath = indexPath
-            
-                 
         }
-        
-        
         else {
+            
             if let index = lastSelectedIndexPathForGenres {
                 let cell = collectionView.cellForItem(at: index) as! MovieGenresCollectionViewCell
                 cell.isSelected = false
+                
             }
-            
             let cell = collectionView.cellForItem(at: indexPath) as! MovieGenresCollectionViewCell
             cell.isSelected = true
             lastSelectedIndexPathForGenres = indexPath
-            
-            
-            print(movieGenres[indexPath.row].id)
+            MainViewController.idx = movieGenres[indexPath.row].id
             obtainMovieList(with: movieGenres[indexPath.row].id)
+            
+            
         }
     }
+        
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         if collectionView == genresCollectionView{
