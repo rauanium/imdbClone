@@ -13,6 +13,7 @@ class ActrosMoviesCollectionViewCell: UICollectionViewCell {
         let moviesPoster = UIImageView()
         moviesPoster.contentMode = .scaleAspectFill
         moviesPoster.clipsToBounds = true
+        moviesPoster.layer.cornerRadius = 10
         return moviesPoster
     }()
     
@@ -35,14 +36,14 @@ class ActrosMoviesCollectionViewCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        setupView()
+        setupViews()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func setupView(){
+    func setupViews(){
         [moviesPoster, movieTitle, movieReleaseYear].forEach {
             contentView.addSubview($0)
         }

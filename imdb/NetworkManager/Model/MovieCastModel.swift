@@ -1,7 +1,9 @@
-// This file was generated from JSON Schema using quicktype, do not modify it directly.
-// To parse the JSON, add this file to your project and do:
 //
-//   let movieCast = try? JSONDecoder().decode(MovieCast.self, from: jsonData)
+//  MovieCastModel.swift
+//  imdb
+//
+//  Created by rauan on 1/2/24.
+//
 
 import Foundation
 

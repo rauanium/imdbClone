@@ -10,7 +10,7 @@ import Lottie
 
 class LoadingView: UIView {
     private enum Constats {
-        static let animationViewSize: CGSize = .init(width: 300, height: 300)
+        static let animationViewSize: CGSize = .init(width: 150, height: 200)
     }
     
     var isLoading = false

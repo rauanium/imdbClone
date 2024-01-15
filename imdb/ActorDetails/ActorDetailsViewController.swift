@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ActorDetailsViewController: UIViewController {
+class ActorDetailsViewController: BaseViewController {
     //MARK: - variables
     var actorId = Int()
     var networkManager = NetworkManager.shared
@@ -298,6 +298,7 @@ extension ActorDetailsViewController {
     //MARK: - loading actor data details
     
     func loadActorDetails(){
+        showLoader()
         networkManager.loadActorDetails(id: actorId) { actorDetails in
             guard let posterPath = actorDetails.profilePath else { return }
             self.navigationItem.title = actorDetails.name
@@ -317,6 +318,10 @@ extension ActorDetailsViewController {
                 self.actorDeathDay.text?.append("Deathdate: \(deathDay)")
             }
             self.actorBiography.text = actorDetails.biography
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5){
+            self.hideLoader()
         }
     }
     //MARK: - load actor images

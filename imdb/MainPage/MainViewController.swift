@@ -7,23 +7,31 @@
 import SnapKit
 import UIKit
 
+
+
 class MainViewController: UIViewController {
+    private var lastSelectedIndexPath: IndexPath?
+    private var lastSelectedIndexPathForGenres: IndexPath?
+    
     private var titleLabelYPosition: Constraint!
     private var genreCollectionIsHidden = false
     private var currentStatus = "now_playing"
     private var networkManager = NetworkManager.shared
-    private let movieStatus = ["Now Playing", "Upcoming", "Popular", "Top Rated"]
     private let themes = Themes.allCases
     
     private var allResults: [Result] = []
     private lazy var result: [Result] = []{
         didSet {
+            
             self.movieTableView.reloadData()
+            
         }
     }
     private lazy var movieGenres: [Genre] = [.init(id: 1, name: "All")]{
         didSet {
+            
             self.genresCollectionView.reloadData()
+            genresCollectionView.selectItem(at: [0, 0], animated: true, scrollPosition: [])
         }
     }
     
@@ -96,7 +104,7 @@ class MainViewController: UIViewController {
         collectionView.showsHorizontalScrollIndicator = false
         collectionView.delegate = self
         collectionView.dataSource = self
-        collectionView.register(MovieStatusCollectionViewCell.self, forCellWithReuseIdentifier: "genresCollection")
+        collectionView.register(MovieGenresCollectionViewCell.self, forCellWithReuseIdentifier: "genresCollection")
         return collectionView
     }()
     
@@ -117,9 +125,16 @@ class MainViewController: UIViewController {
     }
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        genresCollectionView.allowsMultipleSelection = false
+        movieStatusCollectionView.allowsMultipleSelection = false
         genresCollectionView.selectItem(at: [0,0], animated: true, scrollPosition: [])
         movieStatusCollectionView.selectItem(at: [0,0], animated: true, scrollPosition: [])
         animate()
+    }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        genresCollectionView.selectItem(at: lastSelectedIndexPathForGenres, animated: true, scrollPosition: [])
+        movieStatusCollectionView.selectItem(at: lastSelectedIndexPath, animated: true, scrollPosition: [])
     }
     
     private func loadData(){
@@ -204,6 +219,7 @@ class MainViewController: UIViewController {
     }
 }
 
+    
 //MARK: - Contraints
 extension MainViewController {
     private func setupViews(){
@@ -301,11 +317,34 @@ extension MainViewController: UICollectionViewDataSource, UICollectionViewDelega
         if collectionView == movieStatusCollectionView {
             let cell = movieStatusCollectionView.dequeueReusableCell(withReuseIdentifier: "collectionCell", for: indexPath) as! MovieStatusCollectionViewCell
             cell.configure(with: themes[indexPath.row].key)
+            
+            if indexPath.row == 0 {
+                lastSelectedIndexPath = indexPath
+                cell.isSelected = true
+                
+                }
+                
+                //update last select state from lastSelectedIndexPath
+            cell.isSelected = (lastSelectedIndexPath == indexPath)
+            
             return cell
         }
+        
         else {
-            let cell = genresCollectionView.dequeueReusableCell(withReuseIdentifier: "genresCollection", for: indexPath) as! MovieStatusCollectionViewCell
+            let cell = genresCollectionView.dequeueReusableCell(withReuseIdentifier: "genresCollection", for: indexPath) as! MovieGenresCollectionViewCell
             cell.configure(with: movieGenres[indexPath.row].name)
+            
+            if indexPath.row == 0 {
+                lastSelectedIndexPathForGenres = indexPath
+                cell.isSelected = true
+                
+                }
+                
+                //update last select state from lastSelectedIndexPath
+            cell.isSelected = (lastSelectedIndexPathForGenres == indexPath)
+            
+            
+            
             return cell
         }
     }
@@ -315,24 +354,35 @@ extension MainViewController: UICollectionViewDataSource, UICollectionViewDelega
         collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
         
         if collectionView == movieStatusCollectionView {
-            if indexPath.row == 0 {
-                currentStatus = themes[indexPath.row].urlPath
-                loadData()
+            currentStatus = themes[indexPath.row].urlPath
+            loadData()
+            
+            if let index = lastSelectedIndexPath {
+                let cell = collectionView.cellForItem(at: index) as! MovieStatusCollectionViewCell
+                cell.isSelected = false
+                
             }
-            else if indexPath.row == 1 {
-                currentStatus = themes[indexPath.row].urlPath
-                loadData()
-            }
-            else if indexPath.row == 2 {
-                currentStatus = themes[indexPath.row].urlPath
-                loadData()
-            }
-            else if indexPath.row == 3 {
-                currentStatus = themes[indexPath.row].urlPath
-                loadData()
-            }
+
+            let cell = collectionView.cellForItem(at: indexPath) as! MovieStatusCollectionViewCell
+            cell.isSelected = true
+            
+            lastSelectedIndexPath = indexPath
+            
+                 
         }
+        
+        
         else {
+            if let index = lastSelectedIndexPathForGenres {
+                let cell = collectionView.cellForItem(at: index) as! MovieGenresCollectionViewCell
+                cell.isSelected = false
+            }
+            
+            let cell = collectionView.cellForItem(at: indexPath) as! MovieGenresCollectionViewCell
+            cell.isSelected = true
+            lastSelectedIndexPathForGenres = indexPath
+            
+            
             print(movieGenres[indexPath.row].id)
             obtainMovieList(with: movieGenres[indexPath.row].id)
         }

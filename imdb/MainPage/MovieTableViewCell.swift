@@ -7,13 +7,16 @@
 
 import UIKit
 import Kingfisher
+import Lottie
 
 class MovieTableViewCell: UITableViewCell {
 
+    var isLiked = false
     var moviePoster: UIImageView = {
         let moviePoster = UIImageView()
         moviePoster.layer.cornerRadius = 10
         moviePoster.layer.masksToBounds = true
+        moviePoster.isUserInteractionEnabled = true
         return moviePoster
     }()
     
@@ -25,20 +28,46 @@ class MovieTableViewCell: UITableViewCell {
         return movieTitle
     }()
     
+    var yourObj: (() -> Void)? = nil
+    //MARK: - adding like button animation
+    private lazy var likeAnimationView: LottieAnimationView = {
+        let likeAnimationView = LottieAnimationView(name: "likeAnimation")
+        likeAnimationView.contentMode = .scaleAspectFit
+        likeAnimationView.animationSpeed = 2
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(toggleLike))
+        likeAnimationView.addGestureRecognizer(tapGesture)
+        likeAnimationView.isUserInteractionEnabled = true
+        
+        return likeAnimationView
+    }()
+    
+    @objc private func toggleLike(sender: UITapGestureRecognizer){
+        isLiked = !isLiked
+        
+        
+        if isLiked {
+            likeAnimationView.play(fromProgress: 0.0, toProgress: 0.5, loopMode: .playOnce, completion: nil)
+        } else {
+            likeAnimationView.play(fromProgress: 0.5, toProgress: 1.0, loopMode: .playOnce, completion: nil)
+        }
+    }
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: "movieCell")
-        setupUI()
+        setupViews()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func setupUI(){
+    func setupViews(){
         self.contentView.addSubview(moviePoster)
         self.contentView.addSubview(movieTitle)
+        moviePoster.addSubview(likeAnimationView)
         selectionStyle = .none
         backgroundColor = .clear
+        
         
         moviePoster.snp.makeConstraints { make in
             make.top.equalToSuperview()
@@ -53,6 +82,13 @@ class MovieTableViewCell: UITableViewCell {
             make.height.greaterThanOrEqualTo(60)
             make.width.equalTo(contentView.snp.width)
         }
+        likeAnimationView.snp.makeConstraints { make in
+            make.top.equalTo(moviePoster.snp.top)
+            make.right.equalTo(moviePoster.snp.right)
+            make.width.equalTo(100)
+            make.height.equalTo(100)
+        }
+        
     }
     
     func configure(with title: String, and imagePath: String){

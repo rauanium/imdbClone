@@ -26,6 +26,7 @@ class MovieDetailsViewController: BaseViewController {
     //MARK: - ui elements
     private lazy var scrollView: UIScrollView = {
         let scrollView = UIScrollView()
+        scrollView.showsVerticalScrollIndicator = false
         return scrollView
     }()
     
@@ -146,7 +147,6 @@ class MovieDetailsViewController: BaseViewController {
         return castLabel
     }()
     
-    
     private lazy var castCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection =  .horizontal
@@ -198,44 +198,57 @@ class MovieDetailsViewController: BaseViewController {
     }()
     
     override func viewDidLoad() {
-        super.viewDidLoad()
-        view.backgroundColor = .white
-        
-        self.navigationItem.leftBarButtonItem = UIBarButtonItem(title: "", image: UIImage(systemName: "chevron.left"), target: self, action: #selector(didTapButton))
+        super.viewDidLoad()        
         loadData()
         loadCast()
         setupViews()
+        setupNavigationController()
     }
     
     @objc func didTapButton(){
         self.navigationController?.popViewController(animated: true)
     }
     
+    //MARK: - Navigation controller
+    private func setupNavigationController(){
+        navigationController?.navigationBar.tintColor = .black
+        self.navigationItem.leftBarButtonItem = UIBarButtonItem(title: "", image: UIImage(systemName: "chevron.left"), target: self, action: #selector(didTapButton))
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = UIColor.white
+        navigationController?.navigationBar.standardAppearance = appearance
+        navigationController?.navigationBar.scrollEdgeAppearance = appearance
+        
+//        let titleAttribute = [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 25, weight: .bold), NSAttributedString.Key.foregroundColor: UIColor.cyan]
+//        appearance.titleTextAttributes = titleAttribute
+        
+    }
+    
     //MARK: - setup constraints
     private func setupViews(){
+        view.backgroundColor = .white
+        
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
         
         [moviePosterFull, movieTitle, stackViewOfReleaseAndStars, descriptionView, castLabel, castCollectionView, linkLabel, linksStackView].forEach {
             contentView.addSubview($0)
         }
-        stackViewOfReleaseAndStars.addArrangedSubview(leftSideStackView)
-        stackViewOfReleaseAndStars.addArrangedSubview(rightSideStackView)
-        
-        leftSideStackView.addArrangedSubview(releaseDate)
-        leftSideStackView.addArrangedSubview(genresCollectionView)
-        
-        rightSideStackView.addArrangedSubview(starsImageView)
-        rightSideStackView.addArrangedSubview(ratingLabel)
-        rightSideStackView.addArrangedSubview(voteCountLabel)
-        
-        
-        descriptionView.addSubview(overviewLabel)
-        descriptionView.addSubview(movieDescriptionText)
-        
-        linksStackView.addArrangedSubview(imdbImageView)
-        linksStackView.addArrangedSubview(youtubeImageView)
-        linksStackView.addArrangedSubview(facebookImageView)
+        [leftSideStackView, rightSideStackView].forEach {
+            stackViewOfReleaseAndStars.addArrangedSubview($0)
+        }
+        [releaseDate, genresCollectionView].forEach{
+            leftSideStackView.addArrangedSubview($0)
+        }
+        [starsImageView, ratingLabel, voteCountLabel].forEach{
+            rightSideStackView.addArrangedSubview($0)
+        }
+        [overviewLabel, movieDescriptionText].forEach {
+            descriptionView.addSubview($0)
+        }
+        [imdbImageView, youtubeImageView, facebookImageView].forEach {
+            linksStackView.addArrangedSubview($0)
+        }
         
         scrollView.snp.makeConstraints { make in
             make.top.equalTo(view.safeAreaLayoutGuide)
@@ -426,7 +439,7 @@ extension MovieDetailsViewController {
                     }
                 }
             }
-            self?.navigationItem.title = movieDetails.originalTitle
+            self?.title = movieDetails.originalTitle
             self?.movieTitle.text = movieDetails.originalTitle
             self?.movieDescriptionText.text = movieDetails.overview
             self?.releaseDate.text?.append(movieDetails.releaseDate!)
@@ -447,10 +460,8 @@ extension MovieDetailsViewController {
     private func loadCast(){
         networkManager.loadMovieCast(id: movieId) { [weak self] movieCast in
             self?.cast = movieCast.cast
-                       
         }
     }
-    
 }
     
 //MARK: - Stars counting
