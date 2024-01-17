@@ -6,11 +6,13 @@
 //
 import SnapKit
 import UIKit
+import CoreData
 
 class MainViewController: UIViewController {
     static var idx: Int = 1
     private var lastSelectedIndexPath: IndexPath?
     private var lastSelectedIndexPathForGenres: IndexPath?
+    private var favoriteMovies: [NSManagedObject] = []
     
     private var titleLabelYPosition: Constraint!
     private var genreCollectionIsHidden = false
@@ -119,8 +121,8 @@ class MainViewController: UIViewController {
         setupViews()
         genresCollectionView.allowsMultipleSelection = false
         movieStatusCollectionView.allowsMultipleSelection = false
-        //        genresCollectionView.selectItem(at: [0, 0], animated: true, scrollPosition: [])
-        //        movieStatusCollectionView.selectItem(at: [0, 0], animated: true, scrollPosition: [])
+        navigationController?.navigationBar.backgroundColor = .clear
+        loadFavoriteMovies()
     }
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -131,6 +133,7 @@ class MainViewController: UIViewController {
         genresCollectionView.selectItem(at: lastSelectedIndexPathForGenres, animated: true, scrollPosition: [])
         movieStatusCollectionView.selectItem(at: lastSelectedIndexPath, animated: true, scrollPosition: [])
     }
+    
     private func loadGenres(){
         networkManager.loadGenres { [weak self] genres in
             genres.forEach { genre in
@@ -157,6 +160,61 @@ class MainViewController: UIViewController {
             movie.genreIDS.contains(genreId)
         }
     }
+    
+    private func loadFavoriteMovies() {
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
+        let managedContext = appDelegate.persistentContainer.viewContext
+        
+        let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "FavoriteMovies")
+        
+        do {
+            favoriteMovies = try managedContext.fetch(fetchRequest)
+            movieTableView.reloadData()
+        } catch let error as NSError {
+            print("Could not fetch. Error: \(error)")
+        }
+    }
+    
+    private func saveFavoriteMovie(with movie: Result){
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
+        let managedContext = appDelegate.persistentContainer.viewContext
+        
+        guard let entity = NSEntityDescription.entity(forEntityName: "FavoriteMovies", in: managedContext) else { return }
+        let favoriteMovie = NSManagedObject(entity: entity, insertInto: managedContext)
+        favoriteMovie.setValue(movie.id, forKey: "id")
+        favoriteMovie.setValue(movie.title, forKey: "title")
+        favoriteMovie.setValue(movie.posterPath, forKey: "posterPath")
+        
+        do {
+            try managedContext.save()
+        } catch let error as NSError {
+            print("Could not save. Error: \(error)")
+        }
+    }
+    
+    private func removeFavoriteMovie(with movie: Result){
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
+        let managedContext = appDelegate.persistentContainer.viewContext
+        
+        let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "FavoriteMovies")
+        let predicateId = NSPredicate(format: "id == %@", "\(movie.id)")
+        let predicateTitle = NSPredicate(format: "title == %@", movie.title)
+        let predicatePosterPath = NSPredicate(format: "posterPath == %@", movie.posterPath)
+        let predicateAll = NSCompoundPredicate(type: .and, subpredicates: [predicateId, predicateTitle, predicatePosterPath])
+        fetchRequest.predicate = predicateAll
+        
+        do {
+            let results = try managedContext.fetch(fetchRequest)
+            let data = results.first
+            if let data {
+                managedContext.delete(data)
+            }
+            try managedContext.save()
+        } catch let error as NSError {
+            print("Could not delete. Error: \(error)")
+        }
+    }
+    
     
     @objc func imageTapped(){
         if genreCollectionIsHidden {
@@ -288,6 +346,25 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
         let cell = movieTableView.dequeueReusableCell(withIdentifier: "movieCell", for: indexPath) as! MovieTableViewCell
         let movie = result[indexPath.row]
         cell.configure(with: movie.title, and: movie.posterPath)
+        
+        let isFavoriteMovie = !self.favoriteMovies.filter({ ($0.value(forKeyPath: "id") as? Int) == movie.id }).isEmpty
+        cell.toggleFavoriteIcon(with: isFavoriteMovie)
+        
+        cell.didTapFavorite = { [weak self] in
+            guard let self else { return }
+            print("passed")
+            let isInFavoriteMovies = !self.favoriteMovies.filter({ ($0.value(forKeyPath: "id") as? Int) == movie.id }).isEmpty
+            cell.toggleFavoriteIcon(with: !isFavoriteMovie)
+            
+            if isInFavoriteMovies {
+                print("isInFavoriteMovies: \(isInFavoriteMovies) removed")
+                self.removeFavoriteMovie(with: movie)
+            } else {
+                print("isInFavoriteMovies: \(isInFavoriteMovies) saved")
+                self.saveFavoriteMovie(with: movie)
+            }
+            self.loadFavoriteMovies()
+        }
         return cell
     }
     
@@ -357,23 +434,18 @@ extension MainViewController: UICollectionViewDataSource, UICollectionViewDelega
             lastSelectedIndexPath = indexPath
         }
         else {
-            
             if let index = lastSelectedIndexPathForGenres {
                 let cell = collectionView.cellForItem(at: index) as! MovieGenresCollectionViewCell
                 cell.isSelected = false
-                
             }
             let cell = collectionView.cellForItem(at: indexPath) as! MovieGenresCollectionViewCell
             cell.isSelected = true
             lastSelectedIndexPathForGenres = indexPath
             MainViewController.idx = movieGenres[indexPath.row].id
             obtainMovieList(with: movieGenres[indexPath.row].id)
-            
-            
         }
     }
         
-    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         if collectionView == genresCollectionView{
             CGSize(width: 140, height: collectionView.frame.height)

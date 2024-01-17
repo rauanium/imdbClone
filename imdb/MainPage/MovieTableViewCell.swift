@@ -9,9 +9,9 @@ import UIKit
 import Kingfisher
 import Lottie
 
-class MovieTableViewCell: UITableViewCell {
 
-    var isLiked = false
+class MovieTableViewCell: UITableViewCell {
+    var didTapFavorite: (() -> Void)?
     var moviePoster: UIImageView = {
         let moviePoster = UIImageView()
         moviePoster.layer.cornerRadius = 10
@@ -28,29 +28,16 @@ class MovieTableViewCell: UITableViewCell {
         return movieTitle
     }()
     
-    var yourObj: (() -> Void)? = nil
     //MARK: - adding like button animation
     private lazy var likeAnimationView: LottieAnimationView = {
         let likeAnimationView = LottieAnimationView(name: "likeAnimation")
         likeAnimationView.contentMode = .scaleAspectFit
         likeAnimationView.animationSpeed = 2
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(toggleLike))
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(didTapFavoriteIcon))
         likeAnimationView.addGestureRecognizer(tapGesture)
         likeAnimationView.isUserInteractionEnabled = true
-        
         return likeAnimationView
     }()
-    
-    @objc private func toggleLike(sender: UITapGestureRecognizer){
-        isLiked = !isLiked
-        
-        
-        if isLiked {
-            likeAnimationView.play(fromProgress: 0.0, toProgress: 0.5, loopMode: .playOnce, completion: nil)
-        } else {
-            likeAnimationView.play(fromProgress: 0.5, toProgress: 1.0, loopMode: .playOnce, completion: nil)
-        }
-    }
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: "movieCell")
@@ -59,6 +46,19 @@ class MovieTableViewCell: UITableViewCell {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    func toggleFavoriteIcon(with isFavorite: Bool) {
+        if isFavorite {
+            likeAnimationView.play(fromProgress: 0.0, toProgress: 0.5, loopMode: .playOnce, completion: nil)
+        } else {
+            likeAnimationView.play(fromProgress: 0.5, toProgress: 1.0, loopMode: .playOnce, completion: nil)
+        }
+    }
+    
+    @objc private func didTapFavoriteIcon(){
+        print("didTapFavorite")
+        didTapFavorite?()
     }
     
     func setupViews(){
@@ -87,8 +87,7 @@ class MovieTableViewCell: UITableViewCell {
             make.right.equalTo(moviePoster.snp.right)
             make.width.equalTo(100)
             make.height.equalTo(100)
-        }
-        
+        }        
     }
     
     func configure(with title: String, and imagePath: String){
@@ -96,14 +95,6 @@ class MovieTableViewCell: UITableViewCell {
         let urlString = "https://image.tmdb.org/t/p/w200\(imagePath)"
         let url = URL(string: urlString)!
         moviePoster.kf.setImage(with: url)
-        
-//        DispatchQueue.global(qos: .userInitiated).async {
-//            if let data = try? Data(contentsOf: url) {
-//                DispatchQueue.main.async {
-//                    self.moviePoster.image = UIImage(data: data)
-//                }
-//            }
-//        }
       }
 }
 
