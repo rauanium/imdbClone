@@ -36,6 +36,7 @@ class PhotoGalleryViewController: UIViewController {
         self.photoGalleryCollectionView.scrollToItem(at:IndexPath(item: photoID, section: 0), at: .centeredHorizontally, animated: true)
     }
     
+    
     private func setupNavigationController(){
         let titleAttribute = [NSAttributedString.Key.foregroundColor: UIColor.white]
         self.navigationController?.navigationBar.titleTextAttributes = titleAttribute

@@ -26,6 +26,7 @@ class ActorDetailsViewController: BaseViewController {
     //MARK: - creating ui elements from top to bottom
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
+        scrollView.showsVerticalScrollIndicator = false
         return scrollView
     }()
     
@@ -107,6 +108,7 @@ class ActorDetailsViewController: BaseViewController {
         actorPhotosCollectionView.delegate = self
         actorPhotosCollectionView.dataSource = self
         actorPhotosCollectionView.showsHorizontalScrollIndicator = false
+        actorPhotosCollectionView.showsVerticalScrollIndicator = false
         actorPhotosCollectionView.register(ActorPhotosCollectionViewCell.self, forCellWithReuseIdentifier: "actorsPhotoCell")
         return actorPhotosCollectionView
     }()
@@ -126,6 +128,7 @@ class ActorDetailsViewController: BaseViewController {
         let actorsMoviesCollectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         actorsMoviesCollectionView.dataSource = self
         actorsMoviesCollectionView.dataSource = self
+        actorsMoviesCollectionView.showsVerticalScrollIndicator = false
         actorsMoviesCollectionView.showsHorizontalScrollIndicator = false
         actorsMoviesCollectionView.register(ActrosMoviesCollectionViewCell.self, forCellWithReuseIdentifier: "actorsMoviesCell")
         return actorsMoviesCollectionView
@@ -164,14 +167,25 @@ class ActorDetailsViewController: BaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-        self.navigationItem.leftBarButtonItem = UIBarButtonItem(title: "", image: UIImage(systemName: "chevron.left"), target: self, action: #selector(didTapButton))
+//        self.navigationItem.leftBarButtonItem = UIBarButtonItem(title: "", image: UIImage(systemName: "chevron.left"), target: self, action: #selector(didTapButton))
+//        navigationController?.navigationBar.tintColor = .black
         loadActorDetails()
         loadActorImages()
         loadActorsMovies()
         creatingGestures()
         setupViews()
-        
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        let titleAttribute = [NSAttributedString.Key.foregroundColor: UIColor.black]
+        self.navigationController?.navigationBar.titleTextAttributes = titleAttribute
+        navigationController?.navigationBar.tintColor = .black
+        navigationItem.hidesBackButton = true
+        let xmarkButton = UIBarButtonItem(image: UIImage(systemName: "chevron.left"), style: .plain, target: self, action: #selector(didTapButton))
+        navigationItem.leftBarButtonItem = xmarkButton
+    }
+    
     //MARK: - functions
     @objc func didTapButton(){
         self.navigationController?.popViewController(animated: true)
@@ -413,11 +427,9 @@ extension ActorDetailsViewController: UICollectionViewDelegate, UICollectionView
     }
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let photoGalleryViewController = PhotoGalleryViewController()
-//        let actor = cast[indexPath.row]
         photoGalleryViewController.photoID = indexPath.row
         photoGalleryViewController.actorID = actorId
         photoGalleryViewController.actorPhotos = actorImages
-//        print("---> Mark Walberg actorID: \(actor.id)")
         navigationController?.pushViewController(photoGalleryViewController, animated: true)
     }
     

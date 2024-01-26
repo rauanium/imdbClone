@@ -132,6 +132,7 @@ class MainViewController: UIViewController {
         super.viewWillAppear(animated)
         genresCollectionView.selectItem(at: lastSelectedIndexPathForGenres, animated: true, scrollPosition: [])
         movieStatusCollectionView.selectItem(at: lastSelectedIndexPath, animated: true, scrollPosition: [])
+        
     }
     
     private func loadGenres(){
@@ -247,7 +248,7 @@ class MainViewController: UIViewController {
     }
     private func dampingEffect(){
         UIView.animate(withDuration: 0.4, delay: 1.8, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.7) {
-            self.titleLabelYPosition.update(offset: -(self.view.safeAreaLayoutGuide.layoutFrame.size.height / 2 - 16))
+            self.titleLabelYPosition.update(offset: -(self.view.safeAreaLayoutGuide.layoutFrame.size.height / 2 + 16))
             self.view.layoutSubviews()
         }
     }
@@ -298,6 +299,7 @@ extension MainViewController {
         }
         
         titleLabel.snp.makeConstraints { make in
+            make.top.equalToSuperview()
             titleLabelYPosition = make.centerY.equalToSuperview().constraint
             make.centerX.equalToSuperview()
         }

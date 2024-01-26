@@ -202,6 +202,12 @@ class MovieDetailsViewController: BaseViewController {
         loadData()
         loadCast()
         setupViews()
+//        self.navigationItem.leftBarButtonItem = UIBarButtonItem(title: "", image: UIImage(systemName: "chevron.left"), target: self, action: #selector(didTapButton))
+//        navigationController?.navigationBar.tintColor = .black
+        setupNavigationController()
+    }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         setupNavigationController()
     }
     
@@ -209,19 +215,38 @@ class MovieDetailsViewController: BaseViewController {
         self.navigationController?.popViewController(animated: true)
     }
     
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return UIStatusBarStyle.default
+    }
+    
     //MARK: - Navigation controller
     private func setupNavigationController(){
+//        navigationController?.navigationBar.tintColor = .black
+//        self.navigationItem.leftBarButtonItem = UIBarButtonItem(title: "", image: UIImage(systemName: "chevron.left"), target: self, action: #selector(didTapButton))
+//        let appearance = UINavigationBarAppearance()
+//        appearance.configureWithOpaqueBackground()
+//        appearance.backgroundColor = UIColor.white
+//        appearance.shadowColor = .clear
+//        
+//        navigationController?.navigationBar.standardAppearance = appearance
+//        navigationController?.navigationBar.scrollEdgeAppearance = appearance
+//        navigationController?.navigationBar.compactAppearance = appearance
+        
+        
+        
+        let titleAttribute = [NSAttributedString.Key.foregroundColor: UIColor.black]
+        self.navigationController?.navigationBar.titleTextAttributes = titleAttribute
         navigationController?.navigationBar.tintColor = .black
-        self.navigationItem.leftBarButtonItem = UIBarButtonItem(title: "", image: UIImage(systemName: "chevron.left"), target: self, action: #selector(didTapButton))
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = UIColor.white
-        navigationController?.navigationBar.standardAppearance = appearance
-        navigationController?.navigationBar.scrollEdgeAppearance = appearance
         
-//        let titleAttribute = [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 25, weight: .bold), NSAttributedString.Key.foregroundColor: UIColor.cyan]
-//        appearance.titleTextAttributes = titleAttribute
+        navigationItem.hidesBackButton = true
+        let xmarkButton = UIBarButtonItem(image: UIImage(systemName: "chevron.left"), style: .plain, target: self, action: #selector(didTapButton))
+        navigationItem.leftBarButtonItem = xmarkButton
         
+        
+//
+////        let titleAttribute = [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 25, weight: .bold), NSAttributedString.Key.foregroundColor: UIColor.cyan]
+////        appearance.titleTextAttributes = titleAttribute
+//        
     }
     
     //MARK: - setup constraints
@@ -439,7 +464,7 @@ extension MovieDetailsViewController {
                     }
                 }
             }
-            self?.title = movieDetails.originalTitle
+            self?.navigationItem.title = movieDetails.originalTitle
             self?.movieTitle.text = movieDetails.originalTitle
             self?.movieDescriptionText.text = movieDetails.overview
             self?.releaseDate.text?.append(movieDetails.releaseDate!)

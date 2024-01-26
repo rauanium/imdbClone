@@ -57,6 +57,31 @@ class FavoriteViewController: UIViewController {
             print("Could not fetch. Error: \(error)")
         }
     }
+    
+    private func removeFavoriteMovie(with movie: Result){
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
+        let managedContext = appDelegate.persistentContainer.viewContext
+        
+        let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "FavoriteMovies")
+        let predicateId = NSPredicate(format: "id == %@", "\(movie.id)")
+        let predicateTitle = NSPredicate(format: "title == %@", movie.title)
+        let predicatePosterPath = NSPredicate(format: "posterPath == %@", movie.posterPath)
+        let predicateAll = NSCompoundPredicate(type: .and, subpredicates: [predicateId, predicateTitle, predicatePosterPath])
+        fetchRequest.predicate = predicateAll
+        
+        do {
+            let results = try managedContext.fetch(fetchRequest)
+            print(results)
+            let data = results.first
+            if let data {
+                managedContext.delete(data)
+            }
+            try managedContext.save()
+        } catch let error as NSError {
+            print("Could not delete. Error: \(error)")
+        }
+    }
+    
 }
     
     //MARK: - Constraints
@@ -97,7 +122,6 @@ class FavoriteViewController: UIViewController {
             let isFavoriteMovie = !self.favoriteMovies.filter({
                 ($0.value(forKeyPath: "id") as? Int) == movie.value(forKeyPath: "id") as? Int }).isEmpty
             cell.toggleFavoriteIcon(with: isFavoriteMovie)
-            
             return cell
         }
         
