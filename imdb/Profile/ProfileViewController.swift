@@ -11,7 +11,7 @@ import Lottie
 class ProfileViewController: UIViewController {
     
     private lazy var profileAnimationView: LottieAnimationView = {
-        let profileAnimationView = LottieAnimationView(name: "profile")
+        let profileAnimationView = LottieAnimationView(name: "profileAnimation")
         profileAnimationView.contentMode = .scaleAspectFit
         profileAnimationView.animationSpeed = 1.25
         profileAnimationView.backgroundBehavior = .pauseAndRestore
