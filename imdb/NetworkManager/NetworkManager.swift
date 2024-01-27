@@ -381,7 +381,7 @@ class NetworkManager {
                 switch response.result {
                 case .success(let data):
                     do {
-                        if let responseData = data as? [String: Any],
+                        if let responseData = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any], 
                            let success = responseData["success"] as? Bool,
                            success,
                            let sessionID = responseData["session_id"] as? String {

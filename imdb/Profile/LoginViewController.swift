@@ -26,6 +26,12 @@ class LoginViewController: UIViewController {
         return passwordTextField
     }()
     
+    private lazy var statusText: UILabel = {
+        let statusText = UILabel()
+        statusText.text = ""
+        return statusText
+    }()
+    
     private lazy var loginButton: UIButton = {
         let loginButton = UIButton()
         loginButton.setTitle("Log In", for: .normal)
@@ -42,7 +48,7 @@ class LoginViewController: UIViewController {
     private func setupViews() {
         view.backgroundColor = .white
         self.navigationItem.title = "Log In"
-        [emailTextField, passwordTextField, loginButton].forEach {
+        [emailTextField, passwordTextField, statusText, loginButton].forEach {
             view.addSubview($0)
         }
         
@@ -54,8 +60,13 @@ class LoginViewController: UIViewController {
             make.top.equalTo(emailTextField.snp.bottom).offset(16)
             make.left.right.equalTo(emailTextField)
         }
+        statusText.snp.makeConstraints { make in
+            make.top.equalTo(passwordTextField.snp.bottom).offset(10)
+            make.left.right.equalTo(emailTextField)
+            make.height.greaterThanOrEqualTo(20)
+        }
         loginButton.snp.makeConstraints { make in
-            make.top.equalTo(passwordTextField.snp.bottom).offset(24)
+            make.top.equalTo(statusText.snp.bottom).offset(16)
             make.left.right.equalTo(emailTextField)
             make.height.equalTo(44)
         }
@@ -103,16 +114,40 @@ class LoginViewController: UIViewController {
     
     private func createSession(with requestBody: [String: Any]) {
         networkManager.createSession(requestBody: requestBody) { [weak self] result in
+            print("create session result: \(result)")
             switch result {
             case .success(let sessionID):
                 print("My sessionId is \(sessionID)")
+                self?.saveSessionID(with: sessionID)
             case .failure:
-                break
+                print("Failure in create session")
             }
         }
     }
 //    aida.moldaly
 //    Standartny2020
+    
+    private func saveSessionID(with sessionID: String) {
+        print("this is sessionID: \(sessionID)")
+        print("this is emailText: \(emailText!)")
+        
+        
+        let attributes: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: emailText!,
+            kSecValueData as String: sessionID.data(using: .utf8)!
+        ]
+        
+        if SecItemAdd(attributes as CFDictionary, nil) == noErr {
+            statusText.text = "Saved successfully"
+        } else {
+            statusText.text = "Something went wrong"
+        }
+         
+        
+        
+    }
+    
     
     
     

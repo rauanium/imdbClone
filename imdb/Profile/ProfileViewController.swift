@@ -6,15 +6,25 @@
 //
 
 import UIKit
+import Lottie
 
 class ProfileViewController: UIViewController {
-    private lazy var profileImageView: UIImageView = {
-        let profileImageView = UIImageView()
-        profileImageView.contentMode = .scaleAspectFill
-        profileImageView.layer.cornerRadius = 10
-        profileImageView.image = UIImage(named: "elon")
-        return profileImageView
+    
+    private lazy var profileAnimationView: LottieAnimationView = {
+        let profileAnimationView = LottieAnimationView(name: "profile")
+        profileAnimationView.contentMode = .scaleAspectFit
+        profileAnimationView.animationSpeed = 1.25
+        profileAnimationView.backgroundBehavior = .pauseAndRestore
+        return profileAnimationView
     }()
+    
+//    private lazy var profileImageView: UIImageView = {
+//        let profileImageView = UIImageView()
+//        profileImageView.contentMode = .scaleAspectFill
+//        profileImageView.layer.cornerRadius = 10
+//        profileImageView.image = UIImage(named: "elon")
+//        return profileImageView
+//    }()
     
     private lazy var loginButton: UIButton = {
         let loginButton = UIButton()
@@ -33,20 +43,24 @@ class ProfileViewController: UIViewController {
     
     private func setupViews(){
         
-        
+        profileAnimationView.play(fromProgress: profileAnimationView.currentProgress, toProgress: 1, loopMode: .loop)
         view.backgroundColor = .white
         self.navigationItem.title = "Profile"
-        [profileImageView, loginButton].forEach {
+        [profileAnimationView, loginButton].forEach {
             view.addSubview($0)
         }
-        profileImageView.snp.makeConstraints { make in
+        profileAnimationView.snp.makeConstraints { make in
             make.top.equalTo(view.safeAreaLayoutGuide).offset(50)
-            make.left.equalToSuperview().offset(16)
-            make.right.equalToSuperview().offset(-16)
+            make.centerX.equalToSuperview()
             make.height.equalTo(200)
+            make.width.equalTo(200)
+            
+//            make.left.equalToSuperview().offset(16)
+//            make.right.equalToSuperview().offset(-16)
+//            make.height.equalTo(200)
         }
         loginButton.snp.makeConstraints { make in
-            make.top.equalTo(profileImageView.snp.bottom).offset(40)
+            make.top.equalTo(profileAnimationView.snp.bottom).offset(40)
             make.left.equalToSuperview().offset(16)
             make.right.equalToSuperview().offset(-16)
             make.height.equalTo(44)
