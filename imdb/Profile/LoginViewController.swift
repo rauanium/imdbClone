@@ -11,7 +11,7 @@ class LoginViewController: UIViewController {
     var networkManager = NetworkManager.shared
     var emailText: String?
     var passwordText: String?
-    
+    var passwordStatus: Bool = true
     private lazy var emailTextField: UITextField = {
         let emailTextField = UITextField()
         emailTextField.placeholder = "Emter email"
@@ -23,7 +23,16 @@ class LoginViewController: UIViewController {
         let passwordTextField = UITextField()
         passwordTextField.placeholder = "Emter password"
         passwordTextField.borderStyle = .roundedRect
+        passwordTextField.isSecureTextEntry = true
         return passwordTextField
+    }()
+    
+    private lazy var showHidePasswordButton: UIButton = {
+        let showHidePasswordButton = UIButton()
+        showHidePasswordButton.setImage(UIImage(systemName: "eye"), for: .normal)
+        showHidePasswordButton.tintColor = .black
+        showHidePasswordButton.addTarget(self, action: #selector(didTogglePassword), for: .touchUpInside)
+        return showHidePasswordButton
     }()
     
     private lazy var statusText: UILabel = {
@@ -40,6 +49,7 @@ class LoginViewController: UIViewController {
         loginButton.addTarget(self, action: #selector(didTapLoginButton), for: .touchUpInside)
         return loginButton
     }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupViews()
@@ -51,6 +61,7 @@ class LoginViewController: UIViewController {
         [emailTextField, passwordTextField, statusText, loginButton].forEach {
             view.addSubview($0)
         }
+        passwordTextField.addSubview(showHidePasswordButton)
         
         emailTextField.snp.makeConstraints { make in
             make.top.equalTo(view.safeAreaLayoutGuide).inset(16)
@@ -60,6 +71,13 @@ class LoginViewController: UIViewController {
             make.top.equalTo(emailTextField.snp.bottom).offset(16)
             make.left.right.equalTo(emailTextField)
         }
+        showHidePasswordButton.snp.makeConstraints { make in
+            make.right.equalToSuperview()
+            make.centerY.equalToSuperview()
+            make.height.equalTo(20)
+            make.width.equalTo(40)
+        }
+        
         statusText.snp.makeConstraints { make in
             make.top.equalTo(passwordTextField.snp.bottom).offset(10)
             make.left.right.equalTo(emailTextField)
@@ -69,6 +87,20 @@ class LoginViewController: UIViewController {
             make.top.equalTo(statusText.snp.bottom).offset(16)
             make.left.right.equalTo(emailTextField)
             make.height.equalTo(44)
+        }
+    }
+    
+    @objc
+    private func didTogglePassword(){
+        passwordStatus = !passwordStatus
+        if passwordStatus {
+            passwordTextField.isSecureTextEntry = true
+            showHidePasswordButton.setImage(UIImage(systemName: "eye"), for: .normal)
+            
+        } else {
+            passwordTextField.isSecureTextEntry = false
+            showHidePasswordButton.setImage(UIImage(systemName: "eye.slash"), for: .normal)
+            
         }
     }
     

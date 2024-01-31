@@ -71,7 +71,7 @@ class ProfileViewController: UIViewController {
     private func didTapLoginButton(){
         print("tapped")
         let loginViewController = LoginViewController()
-        present(loginViewController, animated: true)
-//        navigationController?.pushViewController(loginViewController, animated: true)
+//        present(loginViewController, animated: true)
+        navigationController?.pushViewController(loginViewController, animated: true)
     }
 }

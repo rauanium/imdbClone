@@ -23,7 +23,7 @@ class MainTabBarViewController: UITabBarController {
         ForYouViewController(),
         UINavigationController(rootViewController: FavoriteViewController()),
         SearchViewController(),
-        ProfileViewController()
+        UINavigationController(rootViewController: ProfileViewController())
     ]
     
     //MARK: - Private methods
