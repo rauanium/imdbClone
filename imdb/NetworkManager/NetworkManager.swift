@@ -12,7 +12,7 @@ class NetworkManager {
     static var shared = NetworkManager()
     
     private let urlString: String = "https://api.themoviedb.org"
-    private let apiKey: String = "821fba2e86cbb574aecf827d251585b9"
+    private let apiKey: String = "88a63ecadd449652c81ed00b8200dcbf"
     private let session = URLSession(configuration: .default)
     
     private lazy var urlComponents: URLComponents = {
@@ -30,287 +30,235 @@ class NetworkManager {
         "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI4YzIyYzEwNjdjZWM3OWRlMDgyODg5Mjg5NGUzMWJkYyIsInN1YiI6IjY1YjIzYzE3MGYyZmJkMDEzMDY2YTBiNiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.Mp_XUBq4oK4yBkE0QWgpQE-uhK_5ayYAdfjJPRkVyv0"
     ]
     
-    
-    
     func loadMovies(with movieStatus: String, completion: @escaping ([Result]) -> Void){
-        let movieURL = "https://api.themoviedb.org/3/movie/\(movieStatus)?api_key=821fba2e86cbb574aecf827d251585b9"
+        var components = urlComponents
+        components.path = "/3/movie/\(movieStatus)"
+        guard let requestURL = components.url else { return }
         
-        if let url = URL(string: movieURL) {
-            let session = URLSession(configuration: .default)
-            let task = session.dataTask(with: url) { data, response, error in
-                if error != nil {
-                    print(error!)
-                    return
-                }
-                if let safeData = data {
-                    let decoder = JSONDecoder()
-                    do {
-//                        print(String(data: safeData, encoding: .utf8)!)
-                        let decodedData = try decoder.decode(MovieModel.self, from: safeData)
-                        DispatchQueue.main.async {
-                            completion(decodedData.results)
-                        }
-                        
-                    } catch {
-                        print(error)
+        AF.request(requestURL, headers: headers).responseData { response in
+            switch response.result {
+            case .success(let data):
+                do {
+                    let decodedData = try JSONDecoder().decode(MovieModel.self, from: data)
+                    DispatchQueue.main.async {
+                        completion(decodedData.results)
                     }
                 }
+                catch {
+                    print(error)
+                }
+            case .failure(let error):
+                print(error)
             }
-            task.resume()
         }
     }
-    
+
     func loadGenres(completion: @escaping ([Genre]) -> Void){
-        let movieGenreURL = "https://api.themoviedb.org/3/genre/movie/list?api_key=821fba2e86cbb574aecf827d251585b9"
+        var components = urlComponents
+        components.path = "/3/genre/movie/list"
+        guard let requestURL = components.url else { return }
         
-        if let url = URL(string: movieGenreURL) {
-            let session = URLSession(configuration: .default)
-            let task = session.dataTask(with: url) { data, response, error in
-                if error != nil {
-                    print(error!)
-                    return
-                }
-                if let safeData = data {
-                    let decoder = JSONDecoder()
-                    do {
-//                        print(String(data: safeData, encoding: .utf8)!)
-                        let decodedData = try decoder.decode(GenresEntity.self, from: safeData)
-                        DispatchQueue.main.async {
-                            completion(decodedData.genres)
-                        }
-                        
-                    } catch {
-                        print(error)
+        AF.request(requestURL, headers: headers).responseData { response in
+            switch response.result {
+            case .success(let data):
+                do {
+                    let decodedData = try JSONDecoder().decode(GenresEntity.self, from: data)
+                    DispatchQueue.main.async {
+                        completion(decodedData.genres)
                     }
                 }
+                catch {
+                    print(error)
+                }
+            case .failure(let error):
+                print(error)
             }
-            task.resume()
-        }        
+        }
     }
     
     
     func loadMovieDetails(id: Int, completion: @escaping (MovieDetailsEntity) -> Void){
-        let movieURL = "https://api.themoviedb.org/3/movie/\(id)?api_key=821fba2e86cbb574aecf827d251585b9"
-        
-        print("movie id: \(id)")
-        if let url = URL(string: movieURL) {
-            let session = URLSession(configuration: .default)
-            let task = session.dataTask(with: url) { data, response, error in
-                if error != nil {
-                    print(error!)
-                    return
-                }
-                if let safeData = data {
-                    let decoder = JSONDecoder()
-                    do {
-//                        print(String(data: safeData, encoding: .utf8)!)
-                        let decodedData = try decoder.decode(MovieDetailsEntity.self, from: safeData)
-                        DispatchQueue.main.async {
-                            completion(decodedData)
-                        }
-                        
-                    } catch {
-                        print("Error: \(error)")
+        var components = urlComponents
+        components.path = "/3/movie/\(id)"
+        guard let requestURL = components.url else { return }
+        AF.request(requestURL, headers: headers).responseData { response in
+            switch response.result {
+            case .success(let data):
+                do {
+                    let decodedData = try JSONDecoder().decode(MovieDetailsEntity.self, from: data)
+                    DispatchQueue.main.async {
+                        completion(decodedData)
                     }
                 }
+                catch {
+                    print(error)
+                }
+            case .failure(let error):
+                print(error)
             }
-            task.resume()
         }
     }
     
     func loadMovieCast(id: Int, completion: @escaping (MovieCastModel) -> Void) {
-        let movieURL = "https://api.themoviedb.org/3/movie/\(id)/credits?api_key=821fba2e86cbb574aecf827d251585b9"
-        if let url = URL(string: movieURL) {
-            let session = URLSession(configuration: .default)
-            let task = session.dataTask(with: url) { data, response, error in
-                if error != nil {
-                    print(error!)
-                    return
-                }
-                if let safeData = data {
-                    let decoder = JSONDecoder()
-                    do {
-//                        print(String(data: safeData, encoding: .utf8)!)
-                        let decodedData = try decoder.decode(MovieCastModel.self, from: safeData)
-                        DispatchQueue.main.async {
-                            completion(decodedData)
-                        }
-                        
-                    } catch {
-                        print("Error: \(error)")
+        
+        var components = urlComponents
+        components.path = "/3/movie/\(id)/credits"
+        guard let requestURL = components.url else { return }
+        
+        AF.request(requestURL, headers: headers).responseData { response in
+            switch response.result {
+            case .success(let data):
+                do {
+                    let decodedData = try JSONDecoder().decode(MovieCastModel.self, from: data)
+                    DispatchQueue.main.async {
+                        completion(decodedData)
                     }
                 }
+                catch {
+                    print(error)
+                }
+            case .failure(let error):
+                print(error)
             }
-            task.resume()
         }
-        
     }
     
     func loadVideos(id: Int, completion: @escaping ([Video]) -> Void) {
-        let videoURL = "https://api.themoviedb.org/3/movie/\(id)/videos?api_key=821fba2e86cbb574aecf827d251585b9"
         
-        if let url = URL(string: videoURL) {
-            let session = URLSession(configuration: .default)
-            let task = session.dataTask(with: url) { data, response, error in
-                if error != nil {
-                    print(error!)
-                    return
-                }
-                if let safeData = data {
-                    let decoder = JSONDecoder()
-                    do {
-//                        print(String(data: safeData, encoding: .utf8)!)
-                        let decodedData = try decoder.decode(VideoEntity.self, from: safeData)
-                        DispatchQueue.main.async {
-                            completion(decodedData.results)
-                        }
-                        
-                    } catch {
-                        print("Error: \(error)")
+        var components = urlComponents
+        components.path = "/3/movie/\(id)/videos"
+        guard let requestURL = components.url else { return }
+        AF.request(requestURL, headers: headers).responseData { response in
+            switch response.result {
+            case .success(let data):
+                do {
+                    let decodedData = try JSONDecoder().decode(VideoEntity.self, from: data)
+                    DispatchQueue.main.async {
+                        completion(decodedData.results)
                     }
                 }
+                catch {
+                    print(error)
+                }
+            case .failure(let error):
+                print(error)
             }
-            task.resume()
         }
     }
     
     func loadExternalID(id: Int, completion: @escaping (ExternalIDModel) -> Void) {
-        let videoURL = "https://api.themoviedb.org/3/movie/\(id)/external_ids?api_key=821fba2e86cbb574aecf827d251585b9"
-        
-        if let url = URL(string: videoURL) {
-            let session = URLSession(configuration: .default)
-            let task = session.dataTask(with: url) { data, response, error in
-                if error != nil {
-                    print(error!)
-                    return
-                }
-                if let safeData = data {
-                    let decoder = JSONDecoder()
-                    do {
-//                        print(String(data: safeData, encoding: .utf8)!)
-                        let decodedData = try decoder.decode(ExternalIDModel.self, from: safeData)
-                        DispatchQueue.main.async {
-                            completion(decodedData)
-                        }
-                        
-                    } catch {
-                        print("Error: \(error)")
+        var components = urlComponents
+        components.path = "/3/movie/\(id)/external_ids"
+        guard let requestURL = components.url else { return }
+        AF.request(requestURL, headers: headers).responseData { response in
+            switch response.result {
+            case .success(let data):
+                do {
+                    let decodedData = try JSONDecoder().decode(ExternalIDModel.self, from: data)
+                    DispatchQueue.main.async {
+                        completion(decodedData)
                     }
                 }
+                catch {
+                    print(error)
+                }
+            case .failure(let error):
+                print(error)
             }
-            task.resume()
         }
     }
+    
     func loadActorDetails(id: Int, completion: @escaping(ActorDetailsModel) -> Void){
-        let actorURL = "https://api.themoviedb.org/3/person/\(id)?api_key=821fba2e86cbb574aecf827d251585b9"
-        if let url = URL(string: actorURL) {
-            let session = URLSession(configuration: .default)
-            let task = session.dataTask(with: url) { data, response, error in
-                if error != nil {
-                    print(error!)
-                    return
-                }
-                if let safeData = data {
-                    let decoder = JSONDecoder()
-                    do {
-//                        print(String(data: safeData, encoding: .utf8)!)
-                        let decodedData = try decoder.decode(ActorDetailsModel.self, from: safeData)
-                        DispatchQueue.main.async {
-                            completion(decodedData)
-                        }
-                        
-                    } catch {
-                        print("Error: \(error)")
+        var components = urlComponents
+        components.path = "/3/person/\(id)"
+        guard let requestURL = components.url else { return }
+        
+        AF.request(requestURL, headers: headers).responseData { response in
+            switch response.result {
+            case .success(let data):
+                do {
+                    let decodedData = try JSONDecoder().decode(ActorDetailsModel.self, from: data)
+                    DispatchQueue.main.async {
+                        completion(decodedData)
                     }
                 }
+                catch {
+                    print(error)
+                }
+            case .failure(let error):
+                print(error)
             }
-            task.resume()
         }
-        
     }
     
     
     func loadActorImages(id: Int, completion: @escaping(ActorImagesModel) -> Void){
-        let actorImagesURL = "https://api.themoviedb.org/3/person/\(id)/images?api_key=821fba2e86cbb574aecf827d251585b9"
-        if let url = URL(string: actorImagesURL){
-            let session = URLSession(configuration: .default)
-            let task = session.dataTask(with: url) { data, response, error in
-                if error != nil {
-                    print(error!)
-                    return
-                }
-                if let safeData = data {
-                    let decoder = JSONDecoder()
-                    do {
-                        let decodedData = try decoder.decode(ActorImagesModel.self, from: safeData)
-                        DispatchQueue.main.async {
-                            
-                            completion(decodedData)
-                        }
-                    } catch {
-                        print("error: \(error)")
+        
+        var components = urlComponents
+        components.path = "/3/person/\(id)/images"
+        guard let requestURL = components.url else { return }
+        AF.request(requestURL, headers: headers).responseData { response in
+            switch response.result {
+            case .success(let data):
+                do {
+                    let decodedData = try JSONDecoder().decode(ActorImagesModel.self, from: data)
+                    DispatchQueue.main.async {
+                        completion(decodedData)
                     }
-                    
                 }
+                catch {
+                    print(error)
+                }
+            case .failure(let error):
+                print(error)
             }
-            task.resume()
         }
-           
     }
     
+    
     func loadActorsMovies(id: Int, completion: @escaping (ActorsMoviesModel) -> Void) {
-        let actrosMoviesURL = "https://api.themoviedb.org/3/person/\(id)/movie_credits?api_key=821fba2e86cbb574aecf827d251585b9"
-        if let url = URL(string: actrosMoviesURL) {
-            let session = URLSession(configuration: .default)
-            let task = session.dataTask(with: url) { data, response, error in
-                if error != nil {
-                    print(error!)
-                    return
-                }
-                if let safeData = data {
-//                    print(String(data: safeData, encoding: .utf8)!)
-                    let decoder = JSONDecoder()
-                    do {
-                        
-                        let decodedData = try decoder.decode(ActorsMoviesModel.self, from: safeData)
-                        DispatchQueue.main.async {
-                            completion(decodedData)
-                        }
-                        
-                    } catch {
-                        print("Error: \(error)")
-                    }
-                }
-            }
-            task.resume()
-        }
         
-    }
-    func loadActorsSocialMedia(id: Int, completion: @escaping (ActorsSocialMediaModel)->Void){
-        let actrosMoviesURL = "https://api.themoviedb.org/3/person/\(id)/external_ids?api_key=821fba2e86cbb574aecf827d251585b9"
-        if let url = URL(string: actrosMoviesURL) {
-            let session = URLSession(configuration: .default)
-            let task = session.dataTask(with: url) { data, response, error in
-                if error != nil {
-                    print(error!)
-                    return
-                }
-                if let safeData = data {
-//                    print(String(data: safeData, encoding: .utf8)!)
-                    let decoder = JSONDecoder()
-                    do {
-                        
-                        let decodedData = try decoder.decode(ActorsSocialMediaModel.self, from: safeData)
-                        DispatchQueue.main.async {
-                            completion(decodedData)
-                        }
-                        
-                    } catch {
-                        print("Error: \(error)")
+        var components = urlComponents
+        components.path = "/3/person/\(id)/movie_credits"
+        guard let requestURL = components.url else { return }
+        AF.request(requestURL, headers: headers).responseData { response in
+            switch response.result {
+            case .success(let data):
+                do {
+                    let decodedData = try JSONDecoder().decode(ActorsMoviesModel.self, from: data)
+                    DispatchQueue.main.async {
+                        completion(decodedData)
                     }
                 }
+                catch {
+                    print(error)
+                }
+            case .failure(let error):
+                print(error)
             }
-            task.resume()
+        }
+    }
+    
+    func loadActorsSocialMedia(id: Int, completion: @escaping (ActorsSocialMediaModel)->Void){
+        var components = urlComponents
+        components.path = "/3/person/\(id)/external_ids"
+        guard let requestURL = components.url else { return }
+        
+        AF.request(requestURL, headers: headers).responseData { response in
+            switch response.result {
+            case .success(let data):
+                do {
+                    let decodedData = try JSONDecoder().decode(ActorsSocialMediaModel.self, from: data)
+                    DispatchQueue.main.async {
+                        completion(decodedData)
+                    }
+                }
+                catch {
+                    print(error)
+                }
+            case .failure(let error):
+                print(error)
+            }
         }
     }
     

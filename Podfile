@@ -10,6 +10,7 @@ target 'imdb' do
     pod 'SnapKit'
     pod 'Kingfisher'
     pod 'lottie-ios'
-    pod 'Alamofire' 
+    pod 'Alamofire'
+    pod 'SwiftKeychainWrapper'  
 
 end

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SwiftKeychainWrapper
 
 class LoginViewController: UIViewController {
     var networkManager = NetworkManager.shared
@@ -100,7 +101,6 @@ class LoginViewController: UIViewController {
         } else {
             passwordTextField.isSecureTextEntry = false
             showHidePasswordButton.setImage(UIImage(systemName: "eye.slash"), for: .normal)
-            
         }
     }
     
@@ -118,9 +118,10 @@ class LoginViewController: UIViewController {
                 if dataModel.success {
                     let requestData: ValidateAuthenticationModel = .init(username: emailText, password: passwordText, requestToken: dataModel.requestToken)
                     self?.validateWithLogin(with: requestData)
-                    
                 }
-            case .failure: break
+            case .failure:
+                print("failed in button Function")
+                self?.showAlert(title: "Error", message: "Network connection error")
             }
         }
     }
@@ -138,10 +139,10 @@ class LoginViewController: UIViewController {
                     }
                 }
             case .failure:
-                break
+                print("validateWithLogin Function")
+                self?.showAlert(title: "Error", message: "Could not find login or password")
             }
-        }
-        )
+        })
     }
     
     private func createSession(with requestBody: [String: Any]) {
@@ -153,6 +154,7 @@ class LoginViewController: UIViewController {
                 self?.saveSessionID(with: sessionID)
             case .failure:
                 print("Failure in create session")
+                self?.showAlert(title: "Cant create session", message: "Something went wrong")
             }
         }
     }
@@ -160,28 +162,25 @@ class LoginViewController: UIViewController {
 //    Standartny2020
     
     private func saveSessionID(with sessionID: String) {
+        print("saveSessionFunction")
         print("this is sessionID: \(sessionID)")
         print("this is emailText: \(emailText!)")
         
-        
-        let attributes: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrAccount as String: emailText!,
-            kSecValueData as String: sessionID.data(using: .utf8)!
-        ]
-        
-        if SecItemAdd(attributes as CFDictionary, nil) == noErr {
+        let sessionIDValue = KeychainWrapper.standard.set(sessionID, forKey: "sessionID")
+        KeychainWrapper.standard.set(emailText!, forKey: "username")
+        if sessionIDValue  {
             statusText.text = "Saved successfully"
+            statusText.textColor = .green
         } else {
             statusText.text = "Something went wrong"
+            statusText.textColor = .red
         }
-         
-        
-        
     }
     
-    
-    
-    
-    
+    func showAlert(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { action in
+            print("alert was called")
+        }))
+    }
 }
