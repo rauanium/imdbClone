@@ -10,6 +10,7 @@ import UIKit
 class ActorDetailsViewController: BaseViewController {
     //MARK: - variables
     var actorId = Int()
+    let dispatchGroup = DispatchGroup()
     var networkManager = NetworkManager.shared
     lazy var actorImages: [Profile] = []{
         didSet {
@@ -169,6 +170,7 @@ class ActorDetailsViewController: BaseViewController {
         view.backgroundColor = .white
 //        self.navigationItem.leftBarButtonItem = UIBarButtonItem(title: "", image: UIImage(systemName: "chevron.left"), target: self, action: #selector(didTapButton))
 //        navigationController?.navigationBar.tintColor = .black
+        showLoader()
         loadActorDetails()
         loadActorImages()
         loadActorsMovies()
@@ -305,6 +307,10 @@ class ActorDetailsViewController: BaseViewController {
             ///works without constraints
             make.height.equalTo(50)
         }
+        dispatchGroup.notify(queue: .main){
+            self.hideLoader()
+        }
+        
     }
 }
 //MARK: - load data
@@ -312,7 +318,8 @@ extension ActorDetailsViewController {
     //MARK: - loading actor data details
     
     func loadActorDetails(){
-        showLoader()
+        
+        dispatchGroup.enter()
         networkManager.loadActorDetails(id: actorId) { actorDetails in
             guard let posterPath = actorDetails.profilePath else { return }
             self.navigationItem.title = actorDetails.name
@@ -322,6 +329,7 @@ extension ActorDetailsViewController {
                 if let data = try? Data(contentsOf: url) {
                     DispatchQueue.main.async {
                         self.actorProfile.image = UIImage(data: data)
+                        self.dispatchGroup.leave()
                     }
                 }
             }
@@ -334,23 +342,27 @@ extension ActorDetailsViewController {
             self.actorBiography.text = actorDetails.biography
         }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5){
-            self.hideLoader()
-        }
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 5){
+            
+//        }
     }
     //MARK: - load actor images
     
     func loadActorImages(){
+        dispatchGroup.enter()
         networkManager.loadActorImages(id: actorId) {[weak self] actorImages in
             self?.actorImages = actorImages.profiles
+            self?.dispatchGroup.leave()
         }
     }
     
     //MARK: - load actors movies
     func loadActorsMovies(){
+        dispatchGroup.enter()
         networkManager.loadActorsMovies(id: actorId) { actorsMovies in
             self.actorsMoviesList = actorsMovies.cast
             print(self.actorsMoviesList[0].originalTitle)
+            self.dispatchGroup.leave()
         }
     }
 }
@@ -427,9 +439,12 @@ extension ActorDetailsViewController: UICollectionViewDelegate, UICollectionView
     }
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let photoGalleryViewController = PhotoGalleryViewController()
-        photoGalleryViewController.photoID = indexPath.row
-        photoGalleryViewController.actorID = actorId
         photoGalleryViewController.actorPhotos = actorImages
+        photoGalleryViewController.photoID = indexPath
+//        photoGalleryViewController.actorID = actorId
+        
+        
+//        photoGalleryViewController.setImage()
         navigationController?.pushViewController(photoGalleryViewController, animated: true)
     }
     

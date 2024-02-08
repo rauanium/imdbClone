@@ -7,7 +7,7 @@
 
 import UIKit
 import CoreData
-
+import SwiftKeychainWrapper
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
@@ -15,7 +15,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        KeychainWrapper.standard.set("88a63ecadd449652c81ed00b8200dcbf", forKey: "sessionID")
         return true
+        
     }
 
     // MARK: UISceneSession Lifecycle

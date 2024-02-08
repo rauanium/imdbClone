@@ -7,21 +7,23 @@
 
 import Foundation
 import Alamofire
+import SwiftKeychainWrapper
 
 class NetworkManager {
     static var shared = NetworkManager()
     
+    
     private let urlString: String = "https://api.themoviedb.org"
-    private let apiKey: String = "88a63ecadd449652c81ed00b8200dcbf"
+//    private let apiKey: String = "88a63ecadd449652c81ed00b8200dcbf"
     private let session = URLSession(configuration: .default)
     
     private lazy var urlComponents: URLComponents = {
         var components = URLComponents()
         components.scheme = "https"
         components.host = "api.themoviedb.org"
-        components.queryItems = [
-            URLQueryItem(name: "api_key", value: apiKey)
-        ]
+//        components.queryItems = [
+//            URLQueryItem(name: "api_key", value: keychainSessionID)
+//        ]
         return components
     }()
     
@@ -32,6 +34,10 @@ class NetworkManager {
     
     func loadMovies(with movieStatus: String, completion: @escaping ([Result]) -> Void){
         var components = urlComponents
+        var keychainSessionID = KeychainWrapper.standard.string(forKey: "sessionID")
+        components.queryItems = [
+            URLQueryItem(name: "api_key", value: keychainSessionID)
+        ]
         components.path = "/3/movie/\(movieStatus)"
         guard let requestURL = components.url else { return }
         
@@ -55,6 +61,10 @@ class NetworkManager {
 
     func loadGenres(completion: @escaping ([Genre]) -> Void){
         var components = urlComponents
+        var keychainSessionID = KeychainWrapper.standard.string(forKey: "sessionID")
+        components.queryItems = [
+            URLQueryItem(name: "api_key", value: keychainSessionID)
+        ]
         components.path = "/3/genre/movie/list"
         guard let requestURL = components.url else { return }
         
@@ -79,7 +89,12 @@ class NetworkManager {
     
     func loadMovieDetails(id: Int, completion: @escaping (MovieDetailsEntity) -> Void){
         var components = urlComponents
+        var keychainSessionID = KeychainWrapper.standard.string(forKey: "sessionID")
+        components.queryItems = [
+            URLQueryItem(name: "api_key", value: keychainSessionID)
+        ]
         components.path = "/3/movie/\(id)"
+        
         guard let requestURL = components.url else { return }
         AF.request(requestURL, headers: headers).responseData { response in
             switch response.result {
@@ -102,6 +117,10 @@ class NetworkManager {
     func loadMovieCast(id: Int, completion: @escaping (MovieCastModel) -> Void) {
         
         var components = urlComponents
+        var keychainSessionID = KeychainWrapper.standard.string(forKey: "sessionID")
+        components.queryItems = [
+            URLQueryItem(name: "api_key", value: keychainSessionID)
+        ]
         components.path = "/3/movie/\(id)/credits"
         guard let requestURL = components.url else { return }
         
@@ -126,6 +145,10 @@ class NetworkManager {
     func loadVideos(id: Int, completion: @escaping ([Video]) -> Void) {
         
         var components = urlComponents
+        var keychainSessionID = KeychainWrapper.standard.string(forKey: "sessionID")
+        components.queryItems = [
+            URLQueryItem(name: "api_key", value: keychainSessionID)
+        ]
         components.path = "/3/movie/\(id)/videos"
         guard let requestURL = components.url else { return }
         AF.request(requestURL, headers: headers).responseData { response in
@@ -148,6 +171,10 @@ class NetworkManager {
     
     func loadExternalID(id: Int, completion: @escaping (ExternalIDModel) -> Void) {
         var components = urlComponents
+        var keychainSessionID = KeychainWrapper.standard.string(forKey: "sessionID")
+        components.queryItems = [
+            URLQueryItem(name: "api_key", value: keychainSessionID)
+        ]
         components.path = "/3/movie/\(id)/external_ids"
         guard let requestURL = components.url else { return }
         AF.request(requestURL, headers: headers).responseData { response in
@@ -170,6 +197,10 @@ class NetworkManager {
     
     func loadActorDetails(id: Int, completion: @escaping(ActorDetailsModel) -> Void){
         var components = urlComponents
+        var keychainSessionID = KeychainWrapper.standard.string(forKey: "sessionID")
+        components.queryItems = [
+            URLQueryItem(name: "api_key", value: keychainSessionID)
+        ]
         components.path = "/3/person/\(id)"
         guard let requestURL = components.url else { return }
         
@@ -195,6 +226,10 @@ class NetworkManager {
     func loadActorImages(id: Int, completion: @escaping(ActorImagesModel) -> Void){
         
         var components = urlComponents
+        var keychainSessionID = KeychainWrapper.standard.string(forKey: "sessionID")
+        components.queryItems = [
+            URLQueryItem(name: "api_key", value: keychainSessionID)
+        ]
         components.path = "/3/person/\(id)/images"
         guard let requestURL = components.url else { return }
         AF.request(requestURL, headers: headers).responseData { response in
@@ -219,6 +254,10 @@ class NetworkManager {
     func loadActorsMovies(id: Int, completion: @escaping (ActorsMoviesModel) -> Void) {
         
         var components = urlComponents
+        var keychainSessionID = KeychainWrapper.standard.string(forKey: "sessionID")
+        components.queryItems = [
+            URLQueryItem(name: "api_key", value: keychainSessionID)
+        ]
         components.path = "/3/person/\(id)/movie_credits"
         guard let requestURL = components.url else { return }
         AF.request(requestURL, headers: headers).responseData { response in
@@ -241,6 +280,10 @@ class NetworkManager {
     
     func loadActorsSocialMedia(id: Int, completion: @escaping (ActorsSocialMediaModel)->Void){
         var components = urlComponents
+        var keychainSessionID = KeychainWrapper.standard.string(forKey: "sessionID")
+        components.queryItems = [
+            URLQueryItem(name: "api_key", value: keychainSessionID)
+        ]
         components.path = "/3/person/\(id)/external_ids"
         guard let requestURL = components.url else { return }
         

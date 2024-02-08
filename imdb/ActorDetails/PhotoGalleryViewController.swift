@@ -9,7 +9,7 @@ import UIKit
 
 class PhotoGalleryViewController: UIViewController {
     
-    var photoID = Int()
+    var photoID = IndexPath()
     var actorID = Int()
     var actorPhotos: [Profile] = []
     
@@ -33,10 +33,16 @@ class PhotoGalleryViewController: UIViewController {
         super.viewDidLoad()
         setupViews()
         setupNavigationController()
-        self.photoGalleryCollectionView.scrollToItem(at:IndexPath(item: photoID, section: 0), at: .centeredHorizontally, animated: true)
+        
+    }
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        self.photoGalleryCollectionView.scrollToItem(at: photoID, at: .top, animated: false)
     }
     
-    
+//    func setImage(){
+//        self.photoGalleryCollectionView.scrollToItem(at: IndexPath(row: photoID, section: 0), at: .centeredHorizontally, animated: false)
+//    }
     private func setupNavigationController(){
         let titleAttribute = [NSAttributedString.Key.foregroundColor: UIColor.white]
         self.navigationController?.navigationBar.titleTextAttributes = titleAttribute
@@ -51,7 +57,7 @@ class PhotoGalleryViewController: UIViewController {
     
     private func setupViews(){
         view.backgroundColor = .black
-        self.title = "\(photoID + 1)/\(actorPhotos.count)"
+        self.title = "\(photoID.row + 1)/\(actorPhotos.count)"
         view.addSubview(photoGalleryCollectionView)
         photoGalleryCollectionView.snp.makeConstraints { make in
             make.edges.equalToSuperview()

@@ -9,6 +9,7 @@ import UIKit
 
 class MovieDetailsViewController: BaseViewController {
     var movieId = Int()
+    let dispatchGroup = DispatchGroup()
     private lazy var starFromDB = "zeroStars"
     private var networkManager = NetworkManager.shared
     
@@ -198,7 +199,8 @@ class MovieDetailsViewController: BaseViewController {
     }()
     
     override func viewDidLoad() {
-        super.viewDidLoad()        
+        super.viewDidLoad()   
+        showLoader()
         loadData()
         loadCast()
         setupViews()
@@ -215,9 +217,9 @@ class MovieDetailsViewController: BaseViewController {
         self.navigationController?.popViewController(animated: true)
     }
     
-    override var preferredStatusBarStyle: UIStatusBarStyle {
-        return UIStatusBarStyle.default
-    }
+//    override var preferredStatusBarStyle: UIStatusBarStyle {
+//        return UIStatusBarStyle.default
+//    }
     
     //MARK: - Navigation controller
     private func setupNavigationController(){
@@ -234,13 +236,14 @@ class MovieDetailsViewController: BaseViewController {
         
         
         
-        let titleAttribute = [NSAttributedString.Key.foregroundColor: UIColor.black]
-        self.navigationController?.navigationBar.titleTextAttributes = titleAttribute
-        navigationController?.navigationBar.tintColor = .black
-        
-        navigationItem.hidesBackButton = true
-        let xmarkButton = UIBarButtonItem(image: UIImage(systemName: "chevron.left"), style: .plain, target: self, action: #selector(didTapButton))
-        navigationItem.leftBarButtonItem = xmarkButton
+//        let titleAttribute = [NSAttributedString.Key.foregroundColor: UIColor.black]
+//        self.navigationController?.navigationBar.titleTextAttributes = titleAttribute
+//        navigationController?.navigationBar.tintColor = .black
+//        
+//        navigationItem.hidesBackButton = true
+////        let xmarkButton = UIBarButtonItem(image: UIImage(systemName: "chevron.left"), style: .plain, target: self, action: #selector(didTapButton))
+//        navigationController?.navigationBar.backgroundColor = .white
+////        navigationItem.leftBarButtonItem = xmarkButton
         
         
 //
@@ -277,7 +280,7 @@ class MovieDetailsViewController: BaseViewController {
         
         scrollView.snp.makeConstraints { make in
             make.top.equalTo(view.safeAreaLayoutGuide)
-            make.top.left.right.bottom.equalToSuperview()
+            make.left.right.bottom.equalToSuperview()
         }
         
         contentView.snp.makeConstraints { make in
@@ -405,6 +408,9 @@ class MovieDetailsViewController: BaseViewController {
         imdbImageView.isUserInteractionEnabled = true
         youtubeImageView.isUserInteractionEnabled = true
         facebookImageView.isUserInteractionEnabled = true
+        
+        
+        
         }
     
 @objc
@@ -450,8 +456,11 @@ func youtubeTapped(_ sender: UITapGestureRecognizer){
 }
 //MARK: - loading data of movie
 extension MovieDetailsViewController {
+    
     private func loadData() {
-        showLoader()
+        
+        dispatchGroup.enter()
+
         networkManager.loadMovieDetails(id: movieId) { [weak self] movieDetails in
             guard let posterPath = movieDetails.posterPath else { return }
                         
@@ -464,6 +473,8 @@ extension MovieDetailsViewController {
                     }
                 }
             }
+            self?.dispatchGroup.leave()
+            
             self?.navigationItem.title = movieDetails.originalTitle
             self?.movieTitle.text = movieDetails.originalTitle
             self?.movieDescriptionText.text = movieDetails.overview
@@ -474,19 +485,35 @@ extension MovieDetailsViewController {
             
             //MARK: - getting movie genres
             self?.movieGenres = movieDetails.genres
-            DispatchQueue.main.asyncAfter(deadline: .now() + 5){
-                self?.hideLoader()
-            }
+//            DispatchQueue.main.asyncAfter(deadline: .now() + 5){
+//                self?.hideLoader()
+//            }
             
         }
+        
+        
     }
     
 //MARK: - load cast
     private func loadCast(){
+        dispatchGroup.enter()
         networkManager.loadMovieCast(id: movieId) { [weak self] movieCast in
             self?.cast = movieCast.cast
         }
+        dispatchGroup.leave()
+        
+        self.dispatchGroup.notify(queue: .main) {
+//            usleep(3000_000)
+            self.hideLoader()
+        }
+        
+        
     }
+    
+    
+        
+    
+    
 }
     
 //MARK: - Stars counting
@@ -567,6 +594,10 @@ extension MovieDetailsViewController: UICollectionViewDataSource, UICollectionVi
         print("---> Mark Walberg actorID: \(actor.id)")
         navigationController?.pushViewController(actorDetailViewController, animated: true)
     }
+    
+    
+    
+    
 }
 
 

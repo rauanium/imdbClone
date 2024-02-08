@@ -28,8 +28,8 @@ class ProfileViewController: UIViewController {
     
     private lazy var loginButton: UIButton = {
         let loginButton = UIButton()
-        loginButton.setTitle("Log In", for: .normal)
-        loginButton.backgroundColor = .gray
+        loginButton.setTitle("Log out", for: .normal)
+        loginButton.backgroundColor = .red
         loginButton.layer.cornerRadius = 10
         loginButton.addTarget(self, action: #selector(didTapLoginButton), for: .touchUpInside)
         return loginButton
